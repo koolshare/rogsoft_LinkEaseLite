@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PLUGIN = ROOT.parent / "rogsoft_LinkEase"
 
 
 class LinkEaseLiteContractTest(unittest.TestCase):
@@ -24,7 +25,6 @@ class LinkEaseLiteContractTest(unittest.TestCase):
     def test_install_and_uninstall_use_only_lite_state(self):
         install = self.read("linkeaselite/install.sh")
         uninstall = self.read("linkeaselite/uninstall.sh")
-        combined = install + "\n" + uninstall
 
         self.assertRegex(install, r"module\s*=\s*\$\{DIR##\*/\}")
         for key in (
@@ -35,7 +35,17 @@ class LinkEaseLiteContractTest(unittest.TestCase):
             "linkeaselite_data_root",
             "softcenter_module_linkeaselite_",
         ):
-            self.assertIn(key, combined)
+            self.assertIn(key, install)
+
+        for key in (
+            "dbus remove linkeaselite_enable",
+            "dbus remove linkeaselite_version",
+            "dbus remove linkeaselite_data_disk",
+            "dbus remove linkeaselite_data_root_parent",
+            "dbus remove linkeaselite_data_root",
+            "dbus remove softcenter_module_linkeaselite_",
+        ):
+            self.assertIn(key, uninstall)
 
         forbidden = (
             "/koolshare/bin/link-ease",
@@ -49,20 +59,50 @@ class LinkEaseLiteContractTest(unittest.TestCase):
             "dbus remove linkease_version",
             "dbus remove softcenter_module_linkease_",
         )
-        for forbidden_text in forbidden:
-            self.assertNotIn(forbidden_text, combined)
+        for script in (install, uninstall):
+            for forbidden_text in forbidden:
+                self.assertNotIn(forbidden_text, script)
+
+        destructive_default_patterns = (
+            r"rm\s+-rf\s+[^;\n]*(?:/koolshare/(?:bin/link-ease|bin/linkease-full|linkease|scripts/linkease|webs/Module_linkease))",
+            r"dbus\s+remove\s+(?:linkease_|softcenter_module_linkease_)",
+        )
+        for pattern in destructive_default_patterns:
+            self.assertIsNone(re.search(pattern, uninstall))
 
     def test_lite_runtime_enforces_mutual_exclusion(self):
         runtime = self.read("linkeaselite/scripts/linkeaselite_config.sh")
         status = self.read("linkeaselite/scripts/linkeaselite_status.sh")
 
-        self.assertIn("killall link-ease", runtime)
-        self.assertIn("killall linkease-full", runtime)
-        self.assertIn("killall linkease-lite", runtime)
+        start = re.search(r"start_lite\(\)\{([\s\S]*?)\n\}", runtime)
+        self.assertIsNotNone(start)
+        start_block = start.group(1)
+
+        for marker in ("killall link-ease", "killall linkease-full", "killall linkease-lite"):
+            self.assertIn(marker, start_block)
         self.assertRegex(runtime, r"dbus\s+set\s+linkease_enable=0")
-        self.assertIn("/koolshare/bin/linkease-lite", runtime)
-        self.assertIn("LINKEASE_SIMPLE=1", runtime)
+        self.assertIn("/koolshare/bin/linkease-lite", start_block)
+        self.assertIn("LINKEASE_SIMPLE=1", start_block)
+        self.assertLess(start_block.index("killall link-ease"), start_block.index("/koolshare/bin/linkease-lite"))
+        self.assertLess(start_block.index("killall linkease-full"), start_block.index("/koolshare/bin/linkease-lite"))
+        self.assertLess(start_block.index("killall linkease-lite"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertRegex(status, r"pidof\s+linkease-lite")
+
+    def test_default_linkease_runtime_stops_lite_before_starting(self):
+        default_runtime = (DEFAULT_PLUGIN / "linkease/scripts/linkease_config.sh").read_text(encoding="utf-8")
+
+        self.assertIn("killall linkease-lite", default_runtime)
+        self.assertRegex(default_runtime, r"dbus\s+set\s+linkeaselite_enable=0")
+
+        for starter_name, started_binary in (
+            ("start_standard", "$LEGACY_BIN"),
+            ("start_full", "start_full_binary"),
+        ):
+            starter = re.search(rf"{starter_name}\(\)\{{([\s\S]*?)\n\}}", default_runtime)
+            self.assertIsNotNone(starter)
+            block = starter.group(1)
+            self.assertIn("stop_linkeaselite_runtime", block)
+            self.assertLess(block.index("stop_linkeaselite_runtime"), block.index(started_binary))
 
     def test_package_contains_only_lite_runtime(self):
         package = ROOT / "linkeaselite.tar.gz"
@@ -71,7 +111,17 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         with tarfile.open(package, "r:gz") as archive:
             names = set(archive.getnames())
 
-        self.assertIn("linkeaselite/bin/linkease-lite", names)
+        expected = {
+            "linkeaselite/bin/linkease-lite",
+            "linkeaselite/install.sh",
+            "linkeaselite/uninstall.sh",
+            "linkeaselite/scripts/linkeaselite_config.sh",
+            "linkeaselite/scripts/linkeaselite_status.sh",
+            "linkeaselite/webs/Module_linkeaselite.asp",
+            "linkeaselite/res/icon-linkease.png",
+            "linkeaselite/version",
+        }
+        self.assertTrue(expected.issubset(names))
         for forbidden_name in (
             "link-ease",
             "linkease-full",
