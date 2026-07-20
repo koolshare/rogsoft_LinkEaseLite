@@ -21,14 +21,15 @@ BUILD_MODE=lite TARGETS="linux/arm/5" OUT_DIR=/tmp/linkeaselite-arm32-build bash
 Staged artifact:
 
 ```text
-linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), statically linked, stripped
-linkeaselite/bin/linkease-lite: 20M
-linkeaselite.tar.gz: 6.7M
-linkeaselite/bin/linkease-lite sha256: 592532dca824411bc2bb48cccba77e3a9abe70946ba7e29aa7034eda347838d9
-linkeaselite.tar.gz sha256: 4dceb048cac1ecd46bd0dca65dcaaa79ae82309c6838fcfb90e5ae960923c5e1
+linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 (GNU/Linux), statically linked, no section header
+linkeaselite/bin/linkease-lite: 4.4M
+linkeaselite.tar.gz: 4.4M
+linkeaselite/bin/linkease-lite sha256: ab37ffd8bd0dcf37015e7e293989758a857a55798572df9f783d2ee6be77d7b5
+linkeaselite.tar.gz sha256: 9128e238c3b763a09977d3a95b42ac7d15273f3bad40391fcaadc6f7813b2dae
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
+The lite build now compresses ARM32 output with UPX when `upx` is available; set `LITE_UPX=0` to skip compression.
 
 Lite startup exports Go memory defaults before launching `linkease-lite`:
 
