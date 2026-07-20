@@ -28,7 +28,7 @@ start_lite(){
     configure_data_paths
     mkdir -p "$USER_DATA_PATH" "$SYSTEM_DATA_PATH" "$TEMP_PATH"
     [ -n "$LINKEASE_RECYCLE_ROOT" ] && mkdir -p "$LINKEASE_RECYCLE_ROOT"
-    LINKEASE_SIMPLE=1 start-stop-daemon -S -q -b -x /koolshare/bin/linkease-lite -- --rootDir "$LINKEASE_DATA_ROOT" --deviceAddr :8897
+    LINKEASE_SIMPLE=1 start-stop-daemon -S -b -x /koolshare/bin/linkease-lite -- --rootDir "$LINKEASE_DATA_ROOT" --deviceAddr :8897
 }
 
 stop_lite(){

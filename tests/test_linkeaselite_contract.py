@@ -87,6 +87,7 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertIn('"$LINKEASE_DATA_ROOT"', start_block)
         self.assertIn("--deviceAddr", start_block)
         self.assertIn(":8897", start_block)
+        self.assertNotIn(" -q ", start_block)
         self.assertLess(start_block.index("killall link-ease"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertLess(start_block.index("killall linkease-full"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertLess(start_block.index("killall linkease-lite"), start_block.index("/koolshare/bin/linkease-lite"))
