@@ -25,7 +25,7 @@ linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 
 linkeaselite/bin/linkease-lite: 16M
 linkeaselite.tar.gz: 5.9M
 linkeaselite/bin/linkease-lite sha256: 009a378d7773cf5f3ad7f45bb423e140a0b5bbda352ea35286a47a784a0acfa1
-linkeaselite.tar.gz sha256: 257d04dc29bdc88a11d741624b39bb87ab0ac7965998517caf97c74e98ba9a65
+linkeaselite.tar.gz sha256: 93030c33338afcfe607b870d509c43aa97d1c305c079400e4e5a4797e91e16f8
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
@@ -94,6 +94,26 @@ id="subMenu"
 id="tabMenu"
 show_menu(menu_hook)
 Module_linkeaselite.asp
+```
+
+The page submit path was smoke-tested by invoking the same explicit web action used by `Module_linkeaselite.asp`:
+
+```text
+sh /koolshare/scripts/linkeaselite_config.sh web 1
+linkeaselite_enable=1
+pid_after_enable=18011
+tcp        0      0 :::8897                 :::*                    LISTEN      18011/linkease-lite
+GET /api/version -> {"version":"1.6.9","webVersion":"0.3.5"}
+
+sh /koolshare/scripts/linkeaselite_config.sh web 0
+linkeaselite_enable=0
+pid_after_disable=
+
+dbus set linkeaselite_enable=1
+killall linkease-lite
+sh /koolshare/scripts/linkeaselite_status.sh
+pid_after_status=18123
+tcp        0      0 :::8897                 :::*                    LISTEN      18123/linkease-lite
 ```
 
 ## HTTP Smoke

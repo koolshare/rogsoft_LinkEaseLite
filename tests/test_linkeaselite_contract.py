@@ -40,6 +40,7 @@ class LinkEaseLiteContractTest(unittest.TestCase):
             "linkeaselite_config.sh",
             "linkeaselite_status.sh",
             "linkeaselite_enable",
+            'params": ["web", dbus["linkeaselite_enable"]]',
         ):
             self.assertIn(required, page)
 
@@ -115,6 +116,21 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertIn("wait_lite_stopped", runtime)
         self.assertLess(start_block.index("wait_lite_stopped"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertRegex(status, r"pidof\s+linkease-lite")
+
+    def test_lite_runtime_handles_explicit_web_submit_state(self):
+        runtime = self.read("linkeaselite/scripts/linkeaselite_config.sh")
+
+        self.assertIn("web)", runtime)
+        self.assertIn('"$2" = "1"', runtime)
+        self.assertIn("dbus set linkeaselite_enable=1", runtime)
+        self.assertIn("dbus set linkeaselite_enable=0", runtime)
+
+    def test_lite_status_self_heals_enabled_stopped_runtime(self):
+        status = self.read("linkeaselite/scripts/linkeaselite_status.sh")
+
+        self.assertIn('if [ "$linkeaselite_enable" = "1" ]', status)
+        self.assertIn("/koolshare/scripts/linkeaselite_config.sh start", status)
+        self.assertIn("LinkEase Lite starting", status)
 
     def test_lite_runtime_sets_go_memory_limits(self):
         runtime = self.read("linkeaselite/scripts/linkeaselite_config.sh")

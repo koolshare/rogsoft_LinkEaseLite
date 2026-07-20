@@ -120,12 +120,12 @@
                 dbus[params_check[i]] = E(params_check[i]).checked ? "1" : "0";
             }
             showLoading();
-            push_data(dbus, 1);
+            push_data(dbus);
         }
 
-        function push_data(obj, arg) {
+        function push_data(obj) {
             var id = parseInt(Math.random() * 100000000);
-            var postData = { "id": id, "method": "linkeaselite_config.sh", "params": [arg], "fields": obj };
+            var postData = { "id": id, "method": "linkeaselite_config.sh", "params": ["web", dbus["linkeaselite_enable"]], "fields": obj };
             $.ajax({
                 url: "/_api/",
                 cache: false,

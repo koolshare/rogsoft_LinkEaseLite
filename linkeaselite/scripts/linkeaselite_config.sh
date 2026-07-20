@@ -71,6 +71,21 @@ case "$ACTION" in
             start_lite
         fi
         ;;
+    stop)
+        stop_lite
+        ;;
+    web)
+        if [ "$2" = "1" ]; then
+            dbus set linkeaselite_enable=1
+            linkeaselite_enable=1
+            start_lite
+        else
+            dbus set linkeaselite_enable=0
+            linkeaselite_enable=0
+            stop_lite
+        fi
+        http_response "$1"
+        ;;
     *)
         if [ "$linkeaselite_enable" = "1" ]; then
             start_lite
