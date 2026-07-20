@@ -22,6 +22,27 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertEqual(config["home_url"], "Module_linkeaselite.asp")
         self.assertEqual(config["package"], "linkeaselite.tar.gz")
 
+    def test_web_ui_uses_softcenter_page_shell(self):
+        page = self.read("linkeaselite/webs/Module_linkeaselite.asp")
+
+        for required in (
+            'onload="init();"',
+            'id="TopBanner"',
+            'id="mainMenu"',
+            'id="subMenu"',
+            'id="tabMenu"',
+            'class="FormTitle"',
+            'id="footer"',
+            "show_menu(menu_hook)",
+            "function menu_hook",
+            "Module_linkeaselite.asp",
+            "/_api/linkeaselite",
+            "linkeaselite_config.sh",
+            "linkeaselite_status.sh",
+            "linkeaselite_enable",
+        ):
+            self.assertIn(required, page)
+
     def test_install_and_uninstall_use_only_lite_state(self):
         install = self.read("linkeaselite/install.sh")
         uninstall = self.read("linkeaselite/uninstall.sh")

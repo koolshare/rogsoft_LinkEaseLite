@@ -25,7 +25,7 @@ linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 
 linkeaselite/bin/linkease-lite: 16M
 linkeaselite.tar.gz: 5.9M
 linkeaselite/bin/linkease-lite sha256: 009a378d7773cf5f3ad7f45bb423e140a0b5bbda352ea35286a47a784a0acfa1
-linkeaselite.tar.gz sha256: b1bcc28900c30eba83fac05fd681440f5555625d06f1a5c45a9ea2fc0d350699
+linkeaselite.tar.gz sha256: 257d04dc29bdc88a11d741624b39bb87ab0ac7965998517caf97c74e98ba9a65
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
@@ -74,17 +74,27 @@ linkease_enable=0
 linkeaselite_enable=1
 link-ease-pid=
 linkease-full-pid=
-linkease-lite-pid=8654
-tcp        0      0 :::8897                 :::*                    LISTEN      8654/linkease-lite
+linkease-lite-pid=15705
+tcp        0      0 :::8897                 :::*                    LISTEN      15705/linkease-lite
 GOMEMLIMIT=192MiB
 GOGC=50
-VmPeak: 549232 kB
-VmSize: 549232 kB
-VmRSS:  14924 kB
-VmData: 533532 kB
+VmPeak: 549488 kB
+VmSize: 549488 kB
+VmRSS:  16024 kB
+VmData: 533788 kB
 ```
 
 Reinstall while an older `linkease-lite` process was still running also worked: `before_pid=8432`, `after_pid=8654`.
+
+The installed web page `/koolshare/webs/Module_linkeaselite.asp` includes the Softcenter page shell markers required for the left navigation:
+
+```text
+id="mainMenu"
+id="subMenu"
+id="tabMenu"
+show_menu(menu_hook)
+Module_linkeaselite.asp
+```
 
 ## HTTP Smoke
 
