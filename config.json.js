@@ -1,7 +1,7 @@
 {
     "description": "LinkEase Lite remote file access",
     "home_url": "Module_linkeaselite.asp",
-    "md5": "10fec2ca2742d09e716642cdc947ba8d",
+    "md5": "37458f712f6b0abf76e34df165c0c57f",
     "module": "linkeaselite",
     "package": "linkeaselite.tar.gz",
     "title": "LinkEase Lite",
