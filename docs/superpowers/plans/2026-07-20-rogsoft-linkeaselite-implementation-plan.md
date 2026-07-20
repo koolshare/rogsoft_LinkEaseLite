@@ -127,10 +127,11 @@
 - [ ] Add runtime memory defaults for small routers:
 
   ```text
-  MemTotal <= 512M:  GOMEMLIMIT=192MiB
-  MemTotal <= 1024M: GOMEMLIMIT=256MiB
+  MemTotal <= 512M:  GOMEMLIMIT=128MiB
+  MemTotal <= 1024M: GOMEMLIMIT=192MiB
   Larger routers:    GOMEMLIMIT=384MiB
   GOGC default:      50
+  Virtual memory:    ulimit -v unlimited 2>/dev/null || true
   ```
 
 - [ ] Run package tests and build package.

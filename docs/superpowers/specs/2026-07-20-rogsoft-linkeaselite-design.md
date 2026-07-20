@@ -100,9 +100,10 @@ The generated `link-ease` artifact is renamed to `linkease-lite` when staged int
 The Lite startup script exports Go runtime memory controls before starting `linkease-lite`:
 
 - `GOGC=50` by default.
-- `GOMEMLIMIT=192MiB` when `/proc/meminfo` reports `MemTotal <= 524288` KB.
-- `GOMEMLIMIT=256MiB` when `MemTotal <= 1048576` KB.
+- `GOMEMLIMIT=128MiB` when `/proc/meminfo` reports `MemTotal <= 524288` KB.
+- `GOMEMLIMIT=192MiB` when `MemTotal <= 1048576` KB.
 - `GOMEMLIMIT=384MiB` on larger routers.
+- `ulimit -v unlimited 2>/dev/null || true` before launch, so firmware shell virtual-memory limits do not prevent Go from reserving address space.
 
 Users or support scripts may override these defaults through `linkeaselite_gomemlimit` and `linkeaselite_gogc` dbus keys.
 

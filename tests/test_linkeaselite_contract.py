@@ -91,6 +91,8 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertLess(start_block.index("killall link-ease"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertLess(start_block.index("killall linkease-full"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertLess(start_block.index("killall linkease-lite"), start_block.index("/koolshare/bin/linkease-lite"))
+        self.assertIn("wait_lite_stopped", runtime)
+        self.assertLess(start_block.index("wait_lite_stopped"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertRegex(status, r"pidof\s+linkease-lite")
 
     def test_lite_runtime_sets_go_memory_limits(self):
@@ -99,12 +101,14 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertIn("default_gomemlimit()", runtime)
         self.assertIn("/proc/meminfo", runtime)
         self.assertIn("MemTotal", runtime)
+        self.assertIn("128MiB", runtime)
         self.assertIn("192MiB", runtime)
-        self.assertIn("256MiB", runtime)
+        self.assertIn("ulimit -v unlimited", runtime)
         self.assertIn("export GOMEMLIMIT=", runtime)
         self.assertIn("export GOGC=", runtime)
         self.assertIn("linkeaselite_gomemlimit", runtime)
         self.assertIn("linkeaselite_gogc", runtime)
+        self.assertLess(runtime.index("ulimit -v unlimited"), runtime.index("start-stop-daemon"))
 
     def test_default_linkease_runtime_stops_lite_before_starting(self):
         default_runtime = (DEFAULT_PLUGIN / "linkease/scripts/linkease_config.sh").read_text(encoding="utf-8")

@@ -25,7 +25,7 @@ linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 
 linkeaselite/bin/linkease-lite: 16M
 linkeaselite.tar.gz: 5.9M
 linkeaselite/bin/linkease-lite sha256: 009a378d7773cf5f3ad7f45bb423e140a0b5bbda352ea35286a47a784a0acfa1
-linkeaselite.tar.gz sha256: 2986e17c5efde524c1b28a6bd0043fddb95aad4babc16466af5085153ca676d6
+linkeaselite.tar.gz sha256: b1bcc28900c30eba83fac05fd681440f5555625d06f1a5c45a9ea2fc0d350699
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
@@ -33,10 +33,11 @@ The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibilit
 Lite startup exports Go memory defaults before launching `linkease-lite`:
 
 ```text
-MemTotal <= 512M:  GOMEMLIMIT=192MiB
-MemTotal <= 1024M: GOMEMLIMIT=256MiB
+MemTotal <= 512M:  GOMEMLIMIT=128MiB
+MemTotal <= 1024M: GOMEMLIMIT=192MiB
 Larger routers:    GOMEMLIMIT=384MiB
 GOGC default:      50
+Virtual memory:    ulimit -v unlimited 2>/dev/null || true
 ```
 
 `GOMEMLIMIT` and `GOGC` reduce heap/RSS growth risk under pressure; they do not significantly reduce Go's initial virtual address reservation.
@@ -73,15 +74,17 @@ linkease_enable=0
 linkeaselite_enable=1
 link-ease-pid=
 linkease-full-pid=
-linkease-lite-pid=6691
-tcp        0      0 :::8897                 :::*                    LISTEN      6691/linkease-lite
-GOMEMLIMIT=256MiB
+linkease-lite-pid=8654
+tcp        0      0 :::8897                 :::*                    LISTEN      8654/linkease-lite
+GOMEMLIMIT=192MiB
 GOGC=50
-VmPeak: 549488 kB
-VmSize: 549488 kB
-VmRSS:  16596 kB
-VmData: 533788 kB
+VmPeak: 549232 kB
+VmSize: 549232 kB
+VmRSS:  14924 kB
+VmData: 533532 kB
 ```
+
+Reinstall while an older `linkease-lite` process was still running also worked: `before_pid=8432`, `after_pid=8654`.
 
 ## HTTP Smoke
 
