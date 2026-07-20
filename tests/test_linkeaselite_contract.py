@@ -93,6 +93,19 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertLess(start_block.index("killall linkease-lite"), start_block.index("/koolshare/bin/linkease-lite"))
         self.assertRegex(status, r"pidof\s+linkease-lite")
 
+    def test_lite_runtime_sets_go_memory_limits(self):
+        runtime = self.read("linkeaselite/scripts/linkeaselite_config.sh")
+
+        self.assertIn("default_gomemlimit()", runtime)
+        self.assertIn("/proc/meminfo", runtime)
+        self.assertIn("MemTotal", runtime)
+        self.assertIn("192MiB", runtime)
+        self.assertIn("256MiB", runtime)
+        self.assertIn("export GOMEMLIMIT=", runtime)
+        self.assertIn("export GOGC=", runtime)
+        self.assertIn("linkeaselite_gomemlimit", runtime)
+        self.assertIn("linkeaselite_gogc", runtime)
+
     def test_default_linkease_runtime_stops_lite_before_starting(self):
         default_runtime = (DEFAULT_PLUGIN / "linkease/scripts/linkease_config.sh").read_text(encoding="utf-8")
 
@@ -138,6 +151,17 @@ class LinkEaseLiteContractTest(unittest.TestCase):
                 any(Path(name).name == forbidden_name or forbidden_name in name for name in names),
                 f"default/full artifact included: {forbidden_name}",
             )
+
+    def test_packaged_lite_binary_is_arm32_for_arm64_compatibility(self):
+        binary = ROOT / "linkeaselite/bin/linkease-lite"
+        data = binary.read_bytes()
+
+        self.assertGreaterEqual(len(data), 20)
+        self.assertEqual(data[:4], b"\x7fELF")
+        self.assertEqual(data[4], 1, "linkease-lite should be ELF32")
+        self.assertEqual(data[5], 1, "linkease-lite should be little-endian")
+        machine = int.from_bytes(data[18:20], "little")
+        self.assertEqual(machine, 40, "linkease-lite should target ARM")
 
 
 if __name__ == "__main__":

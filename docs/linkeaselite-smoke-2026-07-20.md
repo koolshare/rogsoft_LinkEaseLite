@@ -12,19 +12,34 @@ Date: 2026-07-20
 
 ## Package
 
-The ARM64 lite binary was built from `apptunnel/cmd/client` with:
+The lite binary was built from `apptunnel/cmd/client` as 32-bit ARM:
 
 ```sh
-BUILD_MODE=lite TARGETS="linux/arm64" OUT_DIR=/tmp/linkeaselite-build bash cmd/client/scripts/build-client.sh
+BUILD_MODE=lite TARGETS="linux/arm/5" OUT_DIR=/tmp/linkeaselite-arm32-build bash cmd/client/scripts/build-client.sh
 ```
 
 Staged artifact:
 
 ```text
-linkeaselite/bin/linkease-lite: ELF 64-bit LSB executable, ARM aarch64, statically linked, stripped
+linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), statically linked, stripped
 linkeaselite/bin/linkease-lite: 16M
-linkeaselite.tar.gz: 5.6M
+linkeaselite.tar.gz: 5.9M
+linkeaselite/bin/linkease-lite sha256: 009a378d7773cf5f3ad7f45bb423e140a0b5bbda352ea35286a47a784a0acfa1
+linkeaselite.tar.gz sha256: 2986e17c5efde524c1b28a6bd0043fddb95aad4babc16466af5085153ca676d6
 ```
+
+The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
+
+Lite startup exports Go memory defaults before launching `linkease-lite`:
+
+```text
+MemTotal <= 512M:  GOMEMLIMIT=192MiB
+MemTotal <= 1024M: GOMEMLIMIT=256MiB
+Larger routers:    GOMEMLIMIT=384MiB
+GOGC default:      50
+```
+
+`GOMEMLIMIT` and `GOGC` reduce heap/RSS growth risk under pressure; they do not significantly reduce Go's initial virtual address reservation.
 
 ## Install
 
@@ -58,8 +73,14 @@ linkease_enable=0
 linkeaselite_enable=1
 link-ease-pid=
 linkease-full-pid=
-linkease-lite-pid=1162
-tcp        0      0 :::8897                 :::*                    LISTEN      1162/linkease-lite
+linkease-lite-pid=6691
+tcp        0      0 :::8897                 :::*                    LISTEN      6691/linkease-lite
+GOMEMLIMIT=256MiB
+GOGC=50
+VmPeak: 549488 kB
+VmSize: 549488 kB
+VmRSS:  16596 kB
+VmData: 533788 kB
 ```
 
 ## HTTP Smoke

@@ -81,10 +81,10 @@ The Lite package excludes:
 
 ## Build Source
 
-`linkease-lite` is built from `apptunnel/cmd/client` using lite mode:
+`linkease-lite` is built from `apptunnel/cmd/client` using lite mode. The package intentionally uses a 32-bit ARM binary because the legacy plugin used an ARM32 binary, it runs on the target ARM64 Asuswrt router, and it keeps the Go runtime virtual address footprint lower than the ARM64 build.
 
 ```sh
-BUILD_MODE=lite TARGETS="linux/arm64" OUT_DIR=/tmp/linkeaselite-build bash cmd/client/scripts/build-client.sh
+BUILD_MODE=lite TARGETS="linux/arm/5" OUT_DIR=/tmp/linkeaselite-build bash cmd/client/scripts/build-client.sh
 ```
 
 The target router is `aarch64`, verified through:
@@ -94,6 +94,17 @@ ssh -p 2222 admin@192.168.3.247 'uname -m'
 ```
 
 The generated `link-ease` artifact is renamed to `linkease-lite` when staged into the plugin package.
+
+## Memory Policy
+
+The Lite startup script exports Go runtime memory controls before starting `linkease-lite`:
+
+- `GOGC=50` by default.
+- `GOMEMLIMIT=192MiB` when `/proc/meminfo` reports `MemTotal <= 524288` KB.
+- `GOMEMLIMIT=256MiB` when `MemTotal <= 1048576` KB.
+- `GOMEMLIMIT=384MiB` on larger routers.
+
+Users or support scripts may override these defaults through `linkeaselite_gomemlimit` and `linkeaselite_gogc` dbus keys.
 
 ## Test Target
 

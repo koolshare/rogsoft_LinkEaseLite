@@ -18,7 +18,7 @@
 - Package name: `linkeaselite.tar.gz`
 - Shared port: `8897`
 - Target router: `ssh -p 2222 admin@192.168.3.247`
-- Target architecture: `linux/arm64`
+- Target architecture: `linux/arm/5` 32-bit ARM. The ARM32 binary is used intentionally so one package can run on legacy ARM32 routers and ARM64 Asuswrt routers, while keeping the Go runtime virtual address footprint lower than the ARM64 build.
 - Lite package must not include `link-ease`, `linkease-full`, `linkease-media`, `heif-converter`, or `linkease-plugins`.
 - Lite install/uninstall must not remove default LinkEase files or `linkease_*` dbus keys, except Lite startup may set `linkease_enable=0` as runtime mutual exclusion.
 
@@ -93,12 +93,13 @@
 
 ---
 
-## Task 4: Build And Stage ARM64 Lite Binary
+## Task 4: Build And Stage ARM32 Lite Binary
 
 **Files:**
 
 - Modify: `linkeaselite/bin/linkease-lite`
 - Use: `/var/tmp/agentflow-dev/apptunnel-icms/6f69-linkease-lite/apptunnel/cmd/client/scripts/build-client.sh`
+- Modify: `linkeaselite/scripts/linkeaselite_config.sh`
 
 **Steps:**
 
@@ -106,7 +107,7 @@
 
   ```sh
   PATH=/config/.local/share/mise/installs/go/1.25.12/bin:$PATH \
-    BUILD_MODE=lite TARGETS="linux/arm64" OUT_DIR=/tmp/linkeaselite-build \
+    BUILD_MODE=lite TARGETS="linux/arm/5" OUT_DIR=/tmp/linkeaselite-build \
     bash cmd/client/scripts/build-client.sh
   ```
 
@@ -121,6 +122,15 @@
   ```sh
   file linkeaselite/bin/linkease-lite
   du -h linkeaselite/bin/linkease-lite
+  ```
+
+- [ ] Add runtime memory defaults for small routers:
+
+  ```text
+  MemTotal <= 512M:  GOMEMLIMIT=192MiB
+  MemTotal <= 1024M: GOMEMLIMIT=256MiB
+  Larger routers:    GOMEMLIMIT=384MiB
+  GOGC default:      50
   ```
 
 - [ ] Run package tests and build package.
