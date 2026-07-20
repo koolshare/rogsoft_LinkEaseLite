@@ -41,6 +41,7 @@ class LinkEaseLiteContractTest(unittest.TestCase):
             "linkeaselite_status.sh",
             "linkeaselite_enable",
             'params": ["web", dbus["linkeaselite_enable"]]',
+            "/guide/?source=linkeaselite",
         ):
             self.assertIn(required, page)
 

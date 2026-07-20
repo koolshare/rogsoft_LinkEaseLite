@@ -22,10 +22,10 @@ Staged artifact:
 
 ```text
 linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), statically linked, stripped
-linkeaselite/bin/linkease-lite: 16M
-linkeaselite.tar.gz: 5.9M
-linkeaselite/bin/linkease-lite sha256: 009a378d7773cf5f3ad7f45bb423e140a0b5bbda352ea35286a47a784a0acfa1
-linkeaselite.tar.gz sha256: 93030c33338afcfe607b870d509c43aa97d1c305c079400e4e5a4797e91e16f8
+linkeaselite/bin/linkease-lite: 20M
+linkeaselite.tar.gz: 6.7M
+linkeaselite/bin/linkease-lite sha256: 3e378a716901049c3947265897806ebb00327b2109e2eeafd9d36804e5f9a74c
+linkeaselite.tar.gz sha256: e8010ad8dde24a2e42b8ada0fef6569818d548fa0f6a564c6c7697f07d02a640
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
@@ -74,13 +74,13 @@ linkease_enable=0
 linkeaselite_enable=1
 link-ease-pid=
 linkease-full-pid=
-linkease-lite-pid=15705
-tcp        0      0 :::8897                 :::*                    LISTEN      15705/linkease-lite
+linkease-lite-pid=21268
+tcp        0      0 :::8897                 :::*                    LISTEN      21268/linkease-lite
 GOMEMLIMIT=192MiB
 GOGC=50
-VmPeak: 549488 kB
-VmSize: 549488 kB
-VmRSS:  16024 kB
+VmPeak: 553916 kB
+VmSize: 553916 kB
+VmRSS:  16088 kB
 VmData: 533788 kB
 ```
 
@@ -94,6 +94,19 @@ id="subMenu"
 id="tabMenu"
 show_menu(menu_hook)
 Module_linkeaselite.asp
+```
+
+The installed web page points the configuration entry at the local embedded guide:
+
+```text
+http://<router>:8897/guide/?source=linkeaselite
+```
+
+The Lite binary embeds `linkease-client-js/build/linkease-bind.zip`, and router smoke verified local guide assets without remote static requests:
+
+```text
+GET /guide/index.html?source=linkeaselite -> HTTP/1.1 200 OK, 783 bytes
+GET /guide/js/app.js -> HTTP/1.1 200 OK, 139346 bytes
 ```
 
 The page submit path was smoke-tested by invoking the same explicit web action used by `Module_linkeaselite.asp`:
