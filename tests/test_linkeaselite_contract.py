@@ -41,9 +41,10 @@ class LinkEaseLiteContractTest(unittest.TestCase):
             "linkeaselite_status.sh",
             "linkeaselite_enable",
             'params": ["web", dbus["linkeaselite_enable"]]',
-            "/guide/?source=linkeaselite",
+            '"/guide/index.html?t=" + Math.random()',
         ):
             self.assertIn(required, page)
+        self.assertNotIn("source=linkeaselite", page)
 
     def test_install_and_uninstall_use_only_lite_state(self):
         install = self.read("linkeaselite/install.sh")

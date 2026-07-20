@@ -142,7 +142,7 @@
 
         function generate_link() {
             var management_url = "http://" + r_lan_ipaddr + ":8897";
-            var guide_url = management_url + "/guide/?source=linkeaselite";
+            var guide_url = management_url + "/guide/index.html?t=" + Math.random();
             E("linkeaselite_guide").href = guide_url;
             E("linkeaselite_website").href = management_url;
             if (dbus["linkeaselite_enable"] != "1") {

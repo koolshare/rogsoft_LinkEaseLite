@@ -25,7 +25,7 @@ linkeaselite/bin/linkease-lite: ELF 32-bit LSB executable, ARM, EABI5 version 1 
 linkeaselite/bin/linkease-lite: 20M
 linkeaselite.tar.gz: 6.7M
 linkeaselite/bin/linkease-lite sha256: 592532dca824411bc2bb48cccba77e3a9abe70946ba7e29aa7034eda347838d9
-linkeaselite.tar.gz sha256: 1c36c5733add3dae84cc3ea2c7b837200c9fed8557ed24427478c46e27e0ed23
+linkeaselite.tar.gz sha256: 4dceb048cac1ecd46bd0dca65dcaaa79ae82309c6838fcfb90e5ae960923c5e1
 ```
 
 The ARM32 binary is intentional: it matches the legacy LinkEaseLite compatibility model, runs on the ARM64 Asuswrt target, remains compatible with ARM32 routers, and reduced idle virtual memory on the test router from about `1243152 kB` for the ARM64 build to about `549168 kB` for the ARM32 build. Idle RSS was about `15 MB`.
@@ -99,13 +99,13 @@ Module_linkeaselite.asp
 The installed web page points the configuration entry at the local embedded guide:
 
 ```text
-http://<router>:8897/guide/?source=linkeaselite
+http://<router>:8897/guide/index.html?t=<random>
 ```
 
 The `cmd/client` binary embeds `linkease-client-js/build/linkease-bind.zip` for both normal and Lite builds. Router smoke verified local guide assets without remote static requests:
 
 ```text
-GET /guide/index.html?source=linkeaselite -> HTTP/1.1 200 OK, 783 bytes
+GET /guide/index.html?t=123456 -> HTTP/1.1 200 OK, 783 bytes
 GET /guide/js/app.js -> HTTP/1.1 200 OK, 139346 bytes
 ```
 
