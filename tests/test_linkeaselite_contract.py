@@ -22,6 +22,14 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertEqual(config["home_url"], "Module_linkeaselite.asp")
         self.assertEqual(config["package"], "linkeaselite.tar.gz")
 
+    def test_lite_version_matches_default_linkease_version(self):
+        lite_config = json.loads(self.read("config.json.js"))
+        default_config = json.loads((DEFAULT_PLUGIN / "config.json.js").read_text(encoding="utf-8"))
+        lite_version = self.read("linkeaselite/version").strip()
+
+        self.assertEqual(lite_config["version"], default_config["version"])
+        self.assertEqual(lite_version, default_config["version"])
+
     def test_web_ui_uses_softcenter_page_shell(self):
         page = self.read("linkeaselite/webs/Module_linkeaselite.asp")
 
@@ -156,7 +164,7 @@ class LinkEaseLiteContractTest(unittest.TestCase):
         self.assertRegex(default_runtime, r"dbus\s+set\s+linkeaselite_enable=0")
 
         for starter_name, started_binary in (
-            ("start_standard", "$LEGACY_BIN"),
+            ("start_standard", "start_standard_binary"),
             ("start_full", "start_full_binary"),
         ):
             starter = re.search(rf"{starter_name}\(\)\{{([\s\S]*?)\n\}}", default_runtime)
