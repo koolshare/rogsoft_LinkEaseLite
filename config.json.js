@@ -5,5 +5,5 @@
     "module": "linkeaselite",
     "package": "linkeaselite.tar.gz",
     "title": "LinkEase Lite",
-    "version": "2.17.8"
+    "version": "2.17.9"
 }
